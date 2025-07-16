@@ -551,9 +551,12 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
 
 async def run_telegram_bot():
-    """Run the Telegram bot"""
-    print("🤖 Starting Telegram bot...")
-    app = Application.builder().token(BOT_TOKEN).build()
+    app = (
+        Application.builder()
+        .token(BOT_TOKEN)
+        .post_init(post_init)  # Optional
+        .build()
+    )
     
     # Command handlers
     app.add_handler(CommandHandler("start", start))
@@ -585,6 +588,7 @@ async def run_telegram_bot():
     await app.initialize()
     await app.start()
     await app.updater.start_polling()
+    await application.run_polling()
     
     # Keep running while the event is set
     try:
