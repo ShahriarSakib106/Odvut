@@ -551,12 +551,11 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
 
 async def run_telegram_bot():
-    app = (
-        Application.builder()
-        .token(BOT_TOKEN)
-        .post_init(post_init)  # Optional
-        .build()
-    )
+    """Run the Telegram bot with proper initialization for v20.8+"""
+    print("🤖 Starting Telegram bot...")
+    
+    # Initialize the bot application (using 'app' as variable name)
+    app = Application.builder().token(BOT_TOKEN).build()
     
     # Command handlers
     app.add_handler(CommandHandler("start", start))
@@ -588,7 +587,7 @@ async def run_telegram_bot():
     await app.initialize()
     await app.start()
     await app.updater.start_polling()
-    await application.run_polling()
+    await app.updater.start_polling()
     
     # Keep running while the event is set
     try:
@@ -605,17 +604,19 @@ def run_flask_server():
     server.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
 
 def run_bot_in_thread():
-    """Run Telegram bot in asyncio"""
-    asyncio.run(run_telegram_bot())
+    """Wrapper to run the async bot in a thread"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(run_telegram_bot())
+    finally:
+        loop.close()
 
 if __name__ == "__main__":
-    # Set the keep_running event
-    keep_running.set()
+    # Start bot thread
+    bot_thread = threading.Thread(target=run_bot_in_thread, daemon=True)
+    bot_thread.start()
     
-    # Start Flask server in a separate thread
-    flask_thread = threading.Thread(target=run_flask_server, daemon=True)
-    flask_thread.start()
-    
-    # Start Telegram bot in main thread
-    print("🚀 Starting both Flask server and Telegram bot...")
-    run_bot_in_thread()
+    # Start Flask
+    from waitress import serve
+    serve(server, host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
