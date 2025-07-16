@@ -55,11 +55,11 @@ ADMIN_CHAT_ID = 5512534898
 SPREADSHEET_ID = '1r_zR236RAp-Pf1GduE--M89BM-I8wYlqOqMWj6ldiRI'
 SHEET_RANGE = "'Sheet1'!A:D"
 FORM_URL = "https://forms.gle/YOUR_GOOGLE_FORM_LINK"
-SERVICE_ACCOUNT_FILE = 'service_account.json'
+service_info = json.loads(os.environ['GOOGLE_SERVICE_JSON'])
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # Initialize Google Sheets credentials
-creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+creds = service_account.Credentials.from_service_account_info(service_info, scopes=SCOPES)
 
 # Store user states and messages
 user_states = {}
